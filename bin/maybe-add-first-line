@@ -3,8 +3,8 @@
 [ -f "$1" ] || exit 1
 
 FILE="$1"
-HIDDEN="$2"
+FLINE="$2"
 
-if [ "$(head -n 1 $FILE)" != "$HIDDEN" ]; then
-    echo "0a\n$HIDDEN\n.\nw" | ed -s "$FILE" >/dev/null
+if [ "$(head -n 1 $FILE)" != "$FLINE" ]; then
+    echo "0a\n$FLINE\n.\nw" | ed -s "$FILE" >/dev/null
 fi
