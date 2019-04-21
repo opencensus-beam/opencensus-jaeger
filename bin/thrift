@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# add namespaces first:
+
+bin/maybe-add-first-line jaeger-idl/thrift/agent.thrift "namespace erl Jaeger_Thrift_Agent"
+bin/maybe-add-first-line jaeger-idl/thrift/jaeger.thrift "namespace erl Jaeger_Thrift"
+bin/maybe-add-first-line jaeger-idl/thrift/sampling.thrift "namespace erl Jaeger_Thrift_Agent"
+bin/maybe-add-first-line jaeger-idl/thrift/zipkincore.thrift "namespace erl Jaeger_Thrift_Zipkin"
+
+thrift -r --gen erl:maps  -out src/gen jaeger-idl/thrift/agent.thrift
+thrift --gen erl:maps  -out src/gen jaeger-idl/thrift/sampling.thrift
