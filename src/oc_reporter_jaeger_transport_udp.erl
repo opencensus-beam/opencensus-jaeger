@@ -19,13 +19,14 @@
 -module(oc_reporter_jaeger_transport_udp).
 
 %% API
--export([new/1]).
+-export([new/2]).
 
 %% thrift_transport callbacks
 -export([write/2, flush/1, close/1]).
 
-new({Host, Port}) ->
-  {gen_udp:open(0), Host, Port}.
+new(Host, Port) ->
+  {ok, Socket} = gen_udp:open(0),
+  thrift_transport:new(?MODULE, {Socket, Host, Port}).
 
 write({Socket, Host, Port} = State, Data) ->
   ok = gen_udp:send(Socket, Host, Port, Data),
