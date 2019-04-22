@@ -4,11 +4,11 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(collector_thrift).
+-module('Jaeger.Thrift.Collector').
 -behaviour(thrift_service).
 
 
--include("collector_thrift.hrl").
+-include("Jaeger.Thrift.Collector.hrl").
 
 -export([struct_info/1, function_info/2, function_names/0]).
 
@@ -16,10 +16,10 @@ struct_info(_) -> erlang:error(function_clause).
 %%% interface
 % submitBatches(This, Batches)
 function_info('submitBatches', params_type) ->
-  {struct, [{1, {list, {struct, {'jaeger_types', 'Jaeger_Thrift.Batch'}}}}]}
+  {struct, [{1, {list, {struct, {'Jaeger.Thrift.Types', 'Jaeger.Thrift.Batch'}}}}]}
 ;
 function_info('submitBatches', reply_type) ->
-  {list, {struct, {'jaeger_types', 'Jaeger_Thrift.BatchSubmitResponse'}}};
+  {list, {struct, {'Jaeger.Thrift.Types', 'Jaeger.Thrift.BatchSubmitResponse'}}};
 function_info('submitBatches', exceptions) ->
   {struct, []}
 ;

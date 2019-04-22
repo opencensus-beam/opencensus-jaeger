@@ -4,7 +4,7 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(agent_constants).
+-module('Jaeger.Thrift.Sampling.Constants').
 
--include("agent_types.hrl").
+-include("Jaeger.Thrift.Sampling.Types.hrl").
 

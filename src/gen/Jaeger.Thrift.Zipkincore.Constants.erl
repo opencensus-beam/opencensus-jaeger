@@ -4,7 +4,7 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(jaeger_constants).
+-module('Jaeger.Thrift.Zipkincore.Constants').
 
--include("jaeger_types.hrl").
+-include("Jaeger.Thrift.Zipkincore.Types.hrl").
 

@@ -1,11 +1,47 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # add namespaces first:
 
-bin/maybe-add-first-line jaeger-idl/thrift/agent.thrift "namespace erl Jaeger_Thrift_Agent"
-bin/maybe-add-first-line jaeger-idl/thrift/jaeger.thrift "namespace erl Jaeger_Thrift"
-bin/maybe-add-first-line jaeger-idl/thrift/sampling.thrift "namespace erl Jaeger_Thrift_Agent"
-bin/maybe-add-first-line jaeger-idl/thrift/zipkincore.thrift "namespace erl Jaeger_Thrift_Zipkin"
+bin/maybe-add-first-line jaeger-idl/thrift/agent.thrift "namespace erl Jaeger.Thrift"
+bin/maybe-add-first-line jaeger-idl/thrift/jaeger.thrift "namespace erl Jaeger.Thrift"
+bin/maybe-add-first-line jaeger-idl/thrift/sampling.thrift "namespace erl Jaeger.Thrift"
+bin/maybe-add-first-line jaeger-idl/thrift/zipkincore.thrift "namespace erl Jaeger.Thrift.Zipkin"
 
 thrift -r --gen erl:maps  -out src/gen jaeger-idl/thrift/agent.thrift
 thrift --gen erl:maps  -out src/gen jaeger-idl/thrift/sampling.thrift
+
+find ./src -type f -exec sed -i "s/include(\"agent_types.hrl\")/include(\"Jaeger.Thrift.Agent.Types.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"agent_thrift.hrl\")/include(\"Jaeger.Thrift.Agent.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"collector_thrift.hrl\")/include(\"Jaeger.Thrift.Collector.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"jaeger_constants.hrl\")/include(\"Jaeger.Thrift.Constants.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"jaeger_types.hrl\")/include(\"Jaeger.Thrift.Types.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"sampling_constants.hrl\")/include(\"Jaeger.Thrift.Sampling.Constants.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"sampling_types.hrl\")/include(\"Jaeger.Thrift.Sampling.Types.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"zipkincore_constants.hrl\")/include(\"Jaeger.Thrift.Zipkincore.Constants.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"zipkincore_types.hrl\")/include(\"Jaeger.Thrift.Zipkincore.Types.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"sampling_manager_thrift.hrl\")/include(\"Jaeger.Thrift.SamplingManager.hrl\")/" {} \;
+find ./src -type f -exec sed -i "s/include(\"zipkin_collector_thrift.hrl\")/include(\"Jaeger.Thrift.ZipkinCollector.hrl\")/" {} \;
+
+mangle_file () {
+  src="$1"
+  dst="$2"
+  inc="${dst//./__}"
+  sed -i "s/module($src)/module('$dst')/" src/gen/$src.erl
+  mv src/gen/$src.erl src/gen/$dst.erl
+  mv src/gen/$src.hrl src/gen/$dst.hrl
+  find ./src/gen -type f -exec sed -i "s/_${src}_included/_${inc,,}_included/" {} \;
+  find ./src -type f -exec sed -i "s/'$src'/'$dst'/" {} \;
+}
+
+mangle_file "agent_constants" "Jaeger.Thrift.Agent.Constants"
+mangle_file "agent_thrift" "Jaeger.Thrift.Agent"
+mangle_file "agent_types" "Jaeger.Thrift.Agent.Types"
+mangle_file "collector_thrift" "Jaeger.Thrift.Collector"
+mangle_file "jaeger_constants" "Jaeger.Thrift.Constants"
+mangle_file "jaeger_types" "Jaeger.Thrift.Types"
+mangle_file "sampling_constants" "Jaeger.Thrift.Sampling.Constants"
+mangle_file "sampling_types" "Jaeger.Thrift.Sampling.Types"
+mangle_file "zipkincore_constants" "Jaeger.Thrift.Zipkincore.Constants"
+mangle_file "zipkincore_types" "Jaeger.Thrift.Zipkincore.Types"
+mangle_file "sampling_manager_thrift" "Jaeger.Thrift.SamplingManager"
+mangle_file "zipkin_collector_thrift" "Jaeger.Thrift.ZipkinCollector"

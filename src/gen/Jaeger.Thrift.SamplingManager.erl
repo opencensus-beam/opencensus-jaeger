@@ -4,11 +4,11 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(sampling_manager_thrift).
+-module('Jaeger.Thrift.SamplingManager').
 -behaviour(thrift_service).
 
 
--include("sampling_manager_thrift.hrl").
+-include("Jaeger.Thrift.SamplingManager.hrl").
 
 -export([struct_info/1, function_info/2, function_names/0]).
 
@@ -19,7 +19,7 @@ function_info('getSamplingStrategy', params_type) ->
   {struct, [{1, string}]}
 ;
 function_info('getSamplingStrategy', reply_type) ->
-  {struct, {'sampling_types', 'Jaeger_Thrift_Agent.SamplingStrategyResponse'}};
+  {struct, {'Jaeger.Thrift.Sampling.Types', 'Jaeger.Thrift.SamplingStrategyResponse'}};
 function_info('getSamplingStrategy', exceptions) ->
   {struct, []}
 ;

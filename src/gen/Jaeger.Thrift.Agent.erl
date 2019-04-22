@@ -4,11 +4,11 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(agent_thrift).
+-module('Jaeger.Thrift.Agent').
 -behaviour(thrift_service).
 
 
--include("agent_thrift.hrl").
+-include("Jaeger.Thrift.Agent.hrl").
 
 -export([struct_info/1, function_info/2, function_names/0]).
 
@@ -16,7 +16,7 @@ struct_info(_) -> erlang:error(function_clause).
 %%% interface
 % emitZipkinBatch(This, Spans)
 function_info('emitZipkinBatch', params_type) ->
-  {struct, [{1, {list, {struct, {'zipkincore_types', 'Jaeger_Thrift_Zipkin.Span'}}}}]}
+  {struct, [{1, {list, {struct, {'Jaeger.Thrift.Zipkincore.Types', 'Jaeger.Thrift.Zipkin.Span'}}}}]}
 ;
 function_info('emitZipkinBatch', reply_type) ->
   oneway_void;
@@ -25,7 +25,7 @@ function_info('emitZipkinBatch', exceptions) ->
 ;
 % emitBatch(This, Batch)
 function_info('emitBatch', params_type) ->
-  {struct, [{1, {struct, {'jaeger_types', 'Jaeger_Thrift.Batch'}}}]}
+  {struct, [{1, {struct, {'Jaeger.Thrift.Types', 'Jaeger.Thrift.Batch'}}}]}
 ;
 function_info('emitBatch', reply_type) ->
   oneway_void;

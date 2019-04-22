@@ -4,9 +4,9 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(agent_types).
+-module('Jaeger.Thrift.Agent.Types').
 
--include("agent_types.hrl").
+-include("Jaeger.Thrift.Agent.Types.hrl").
 
 -export([struct_info/1, struct_info_ext/1, enum_info/1, enum_names/0, struct_names/0, exception_names/0]).
 

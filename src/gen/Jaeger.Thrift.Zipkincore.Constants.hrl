@@ -5,7 +5,7 @@
 %%
 
 
--include("zipkincore_types.hrl").
+-include("Jaeger.Thrift.Zipkincore.Types.hrl").
 
 -define(ZIPKINCORE_CLIENT_SEND, "cs").
 

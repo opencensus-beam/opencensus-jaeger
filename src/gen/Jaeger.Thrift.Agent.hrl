@@ -1,5 +1,5 @@
 -ifndef(_agent_included).
 -define(_agent_included, yeah).
--include("agent_types.hrl").
+-include("Jaeger.Thrift.Agent.Types.hrl").
 
 -endif.

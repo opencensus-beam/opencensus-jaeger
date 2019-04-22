@@ -4,7 +4,6 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(zipkincore_constants).
 
--include("zipkincore_types.hrl").
+-include("Jaeger.Thrift.Sampling.Types.hrl").
 

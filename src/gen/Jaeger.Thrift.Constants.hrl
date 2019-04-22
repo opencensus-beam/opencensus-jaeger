@@ -5,5 +5,5 @@
 %%
 
 
--include("agent_types.hrl").
+-include("Jaeger.Thrift.Types.hrl").
 

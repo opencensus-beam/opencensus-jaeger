@@ -4,11 +4,11 @@
 %% DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 %%
 
--module(zipkin_collector_thrift).
+-module('Jaeger.Thrift.ZipkinCollector').
 -behaviour(thrift_service).
 
 
--include("zipkin_collector_thrift.hrl").
+-include("Jaeger.Thrift.ZipkinCollector.hrl").
 
 -export([struct_info/1, function_info/2, function_names/0]).
 
@@ -16,10 +16,10 @@ struct_info(_) -> erlang:error(function_clause).
 %%% interface
 % submitZipkinBatch(This, Spans)
 function_info('submitZipkinBatch', params_type) ->
-  {struct, [{1, {list, {struct, {'zipkincore_types', 'Jaeger_Thrift_Zipkin.Span'}}}}]}
+  {struct, [{1, {list, {struct, {'Jaeger.Thrift.Zipkincore.Types', 'Jaeger.Thrift.Zipkin.Span'}}}}]}
 ;
 function_info('submitZipkinBatch', reply_type) ->
-  {list, {struct, {'zipkincore_types', 'Jaeger_Thrift_Zipkin.Response'}}};
+  {list, {struct, {'Jaeger.Thrift.Zipkincore.Types', 'Jaeger.Thrift.Zipkin.Response'}}};
 function_info('submitZipkinBatch', exceptions) ->
   {struct, []}
 ;

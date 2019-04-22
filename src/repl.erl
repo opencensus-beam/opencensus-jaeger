@@ -6,24 +6,24 @@
 -export([flush/1]).
 -export([close/1]).
 
--include("gen/jaeger_types.hrl").
+-include("gen/Jaeger.Thrift.Agent.hrl").
 
 run() ->
   {ok, Socket} = gen_udp:open(0),
   {ok, Transport} = thrift_transport:new(?MODULE, [Socket]),
   {ok, BufferedTransport} = thrift_buffered_transport:new(Transport),
-  {ok, Protocol} = thrift_binary_protocol:new(BufferedTransport),
-  {ok, Client} = thrift_client:new(Protocol, agent_thrift),
+  {ok, Protocol} = thrift_compact_protocol:new(BufferedTransport),
+  {ok, Client} = thrift_client:new(Protocol, 'Jaeger.Thrift.Agent'),
   
-  thrift_client:call(Client, 'emitBatch', [#'Jaeger_Thrift.Batch'{process = make_process(),
-                                                                 spans = make_spans()}]).
+  thrift_client:call(Client, 'emitBatch', [#'Jaeger.Thrift.Batch'{process = make_process(),
+                                                                  spans = make_spans()}]).
 
 make_process() ->
-  #'Jaeger_Thrift.Process'{'serviceName' = "repl",
+  #'Jaeger.Thrift.Process'{'serviceName' = atom_to_binary(node(), utf8),
                            tags = []}.
 
 make_spans() ->
-  [#'Jaeger_Thrift.Span'{'traceIdLow' = 1,
+  [#'Jaeger.Thrift.Span'{'traceIdLow' = 1,
                          'traceIdHigh' = 10,
                          'spanId' = 66,
                          'parentSpanId' = 6,
@@ -33,7 +33,7 @@ make_spans() ->
                          'duration' = 100}].
 
 write([Socket], Data) ->
-  ok = gen_udp:send(Socket, "localhost", 6832, Data),
+  ok = gen_udp:send(Socket, "localhost", 6831, Data),
   {[Socket], ok}.
 
 flush(State) ->
