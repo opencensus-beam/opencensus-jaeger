@@ -72,59 +72,26 @@ send_jaeger_span(Span, Agent, Process) ->
                                                                  spans = make_spans(Span)}]).
 
 make_spans(Span) ->
-  %% (optional_fields(Span))#{
-  %%                          <<"traceId">> => iolist_to_binary(io_lib:format("~32.16.0b", [Span#span.trace_id])),
-  %%                          <<"name">> => iolist_to_binary(Span#span.name),
-  %%                          <<"id">> => iolist_to_binary(io_lib:format("~16.16.0b", [Span#span.span_id])),
-  %%                          <<"timestamp">> => wts:to_absolute(Span#span.start_time),
-  %%                          <<"duration">> => wts:duration(Span#span.start_time, Span#span.end_time),
-  %%                          <<"debug">> => false, %% TODO: get from attributes?
-  %%                          <<"shared">> => false, %% TODO: get from attributes?
-  %%                          <<"localEndpoint">> => LocalEndpoint,
-  %%                          %% <<"remoteEndpoint">> =>  %% TODO: get from attributes?
-  %%                          <<"annotations">> => to_annotations(Span#span.time_events),
-  %%                          <<"tags">> => to_tags(Span#span.attributes) %% TODO: merge with oc_tags?
-  %%                         }.
 
   TraceId = Span#span.trace_id,
   <<High:64, Low:64>> = <<TraceId:128/integer>>,
-  
+
+  ParentSpanId = case Span#span.parent_span_id of
+                   undefined -> 0;
+                   PSI -> PSI
+                 end,
+
   [#'Jaeger.Thrift.Span'{'traceIdLow' = Low,
                          'traceIdHigh' = High,
                          'spanId' = Span#span.span_id,
-                         'parentSpanId' = Span#span.parent_span_id,
+                         'parentSpanId' = ParentSpanId,
                          'operationName' = Span#span.name,
+                         'references' = to_references(Span#span.links),
                          'flags' = Span#span.trace_options,
                          'startTime' = wts:to_absolute(Span#span.start_time),
-                         'duration' = wts:duration(Span#span.start_time, Span#span.end_time)}].
-  
-
-%% to_annotations(TimeEvents) ->
-%%   to_annotations(TimeEvents, []).
-
-%% to_annotations([], Annotations) ->
-%%   Annotations;
-%% to_annotations([{Timestamp, #annotation{description=Description,
-%%                                         attributes=Attributes}} | Rest], Annotations) ->
-%%   to_annotations(Rest, [#{<<"timestamp">> => wts:to_absolute(Timestamp),
-%%                           <<"value">> => annotation_value(Description, Attributes)} | Annotations]);
-%% to_annotations([{Timestamp, MessageEvent=#message_event{}} | Rest], Annotations) ->
-%%   to_annotations(Rest, [#{<<"timestamp">> => wts:to_absolute(Timestamp),
-%%                           <<"value">> => annotation_value(MessageEvent)} | Annotations]).
-
-%% annotation_value(Description, Attributes) ->
-%%   AttrString = lists:join(", ", [[Key, "=", to_string(Value)] ||
-%%                                   {Key, Value} <- maps:to_list(Attributes)]),
-%%   iolist_to_binary([Description, " Attributes:{", AttrString, "}"]).
-
-%% annotation_value(#message_event{type=Type,
-%%                                 id=Id,
-%%                                 uncompressed_size=UncompressedSize,
-%%                                 compressed_size=CompressedSize}) ->
-%%   iolist_to_binary(["MessageEvent:{type=", atom_to_binary(Type, utf8),
-%%                     ", id=", integer_to_binary(Id),
-%%                     ", uncompressed_size=", integer_to_binary(UncompressedSize),
-%%                     ", compressed_size=", integer_to_binary(CompressedSize), "}"]).
+                         'duration' = wts:duration(Span#span.start_time, Span#span.end_time),
+                         'tags' = to_tags(Span#span.attributes),
+                         'logs' = to_logs(Span#span.time_events)}].
 
 jaeger_hostname(Options) ->
   proplists:get_value(hostname, Options, ?DEFAULT_HOSTNAME).
@@ -142,43 +109,79 @@ jaeger_protocol(Options) ->
       Protocol
   end.
 
-%% to_string(Value) when is_function(Value) ->
-%%   to_string(Value());
-%% to_string(Value) when is_list(Value) ;
-%%                       is_binary(Value) ->
-%%   Value;
-%% to_string(Value) ->
-%%   io_lib:format("~p", [Value]).
+to_references([]) ->
+  undefined;
+to_references(Links) ->
+  [to_reference(Link) || Link <- Links].
 
-%% to_tag(_Name, Value) when is_function(Value) ->
-%%   Value();
-%% to_tag(_Name, Value) when is_list(Value) ->
-%%   list_to_binary(Value);
-%% to_tag(_Name, Value) ->
-%%   Value.
+to_reference(#link{type = Type,
+                   trace_id = TraceId,
+                   span_id = SpanId}) ->
 
-%% to_tags(Attributes) ->
-%%   maps:map(fun(Name, Value) ->
-%%                to_tag(Name, Value)
-%%            end, Attributes).
+  <<High:64, Low:64>> = <<TraceId:128/integer>>,
 
-%% optional_fields(Span) ->
-%%   lists:foldl(fun(Field, Acc) ->
-%%                   case span_field(Field, Span) of
-%%                     undefined ->
-%%                       Acc;
-%%                     Value ->
-%%                       maps:put(Field, Value, Acc)
-%%                   end
-%%               end, #{}, [<<"kind">>, <<"parentId">>]).
+  RefType = case Type of
+              'TYPE_UNSPECIFIED' -> undefined;
+              'CHILD_LINKED_SPAN' -> 0; %% 'CHILD_OF';
+              'PARENT_LINKED_SPAN' -> 1 %%  'FOLLOWS_FROM'
+            end,
 
-%% span_field(<<"parentId">>, #span{parent_span_id=undefined}) ->
-%%   undefined;
-%% span_field(<<"parentId">>, #span{parent_span_id=ParentId}) ->
-%%   iolist_to_binary(io_lib:format("~16.16.0b", [ParentId]));
-%% span_field(<<"kind">>, #span{kind=?SPAN_KIND_UNSPECIFIED}) ->
-%%   undefined;
-%% span_field(<<"kind">>, #span{kind=?SPAN_KIND_SERVER}) ->
-%%   <<"SERVER">>;
-%% span_field(<<"kind">>, #span{kind=?SPAN_KIND_CLIENT}) ->
-%%   <<"CLIENT">>.
+  #'Jaeger.Thrift.SpanRef'{
+     'refType' = RefType,
+     'traceIdHigh' = High,
+     'traceIdLow' = Low,
+     'spanId' = SpanId}.
+
+to_tag(Name, Value) when is_function(Value) ->
+  to_tag(Name, Value());
+to_tag(Name, Value) when is_list(Value) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 0, %% STRING
+                       'vStr' = Value};
+to_tag(Name, Value) when is_binary(Value) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 0, %% STRING
+                       'vStr' = Value};
+to_tag(Name, Value) when is_float(Value) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 1, %% DOUBLE
+                       'vDouble' = Value};
+to_tag(Name, true) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 2, %% BOOL
+                       'vBool' = true};
+to_tag(Name, false) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 2, %% BOOL
+                       'vBool' = false};
+to_tag(Name, Value) when is_integer(Value) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 3, %% LONG
+                       'vLong' = Value}.
+
+to_tags(Map) when map_size(Map) == 0 ->
+  undefined;
+to_tags(Attributes) ->
+  maps:values(maps:map(fun(Name, Value) ->
+                           to_tag(Name, Value)
+                       end, Attributes)).
+
+to_log({Timestamp, #annotation{description = Description,
+                               attributes = Attributes}}) ->
+  Fields0 = case map_size(Attributes) of
+              0 ->
+                [];
+              _ -> to_tags(Attributes)
+            end,
+  Fields = [#'Jaeger.Thrift.Tag'{'key' = <<"message">>,
+                                 'vType' = 0, %% STRING
+                                 'vStr' = Description}] ++ Fields0,
+  {true, #'Jaeger.Thrift.Log'{timestamp = wts:to_absolute(Timestamp),
+                              fields = Fields}};
+to_log({_Timestamp, _MessageEvent}) ->
+  false.
+
+to_logs([]) ->
+  undefined;
+to_logs(TimeEvents) ->
+  lists:filtermap(fun to_log/1, TimeEvents).
