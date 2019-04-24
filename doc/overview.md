@@ -3,12 +3,11 @@
 @version 0.0.1
 
 @doc
+
 [![Hex.pm][Hex badge]][Hex link]
 [![Hex.pm Downloads][Hex downloads badge]][Hex link]
 [![Build Status][Travis badge]][Travis link]
 [![Coverage Status][Coveralls badge]][Coveralls link]
-
-=====
 
 To use, add `opencensus_jaeger' dependency as a runtime application (in rebar3 this means add to the `applications' list of `.app.src') and set as the reporter in the `opencensus' configuration:
 
@@ -17,7 +16,7 @@ To use, add `opencensus_jaeger' dependency as a runtime application (in rebar3 t
     {reporters, [{oc_reporter_jaeger, [{hostname, "localhost"},
                                        {port, 6831}, %% default for compact protocol
                                        {service_name, "service"},
-                                       {service_tags, %{"key" => "value"}}]}]},
+                                       {service_tags, #{"key" => "value"}}]}]},
     ...]}
 </pre>
 
