@@ -37,7 +37,7 @@
 -define(DEFAULT_TRANSPORT, oc_reporter_jaeger_transport_udp).
 %% -define(DEFAULT_COLLECTOR, undefined). %% http://localhost:14268/api/traces
 -define(DEFAULT_SERVICE_NAME, atom_to_binary(node(), utf8)).
--define(DEFAULT_TAGS, []).
+-define(DEFAULT_SERVICE_TAGS, undefined).
 
 -export([init/1,
          report/2]).
@@ -50,14 +50,17 @@ init(Opts) ->
   Port = jaeger_port(Opts),
   ProtocolModule = jaeger_protocol(Opts),
   TransportModule = ?DEFAULT_TRANSPORT,
+  
+  ServiceName = jaeger_service_name(Opts),
+  ServiceTags = jaeger_service_tags(Opts),
 
   {ok, Transport} = TransportModule:new(Hostname, Port),
   {ok, BufferedTransport} = thrift_buffered_transport:new(Transport),
   {ok, Protocol} = ProtocolModule:new(BufferedTransport),
   {ok, Agent} = thrift_client:new(Protocol, 'Jaeger.Thrift.Agent'),
 
-  Process = #'Jaeger.Thrift.Process'{'serviceName' = ?DEFAULT_SERVICE_NAME,
-                                     tags = ?DEFAULT_TAGS},
+  Process = #'Jaeger.Thrift.Process'{'serviceName' = ServiceName,
+                                     'tags' = ServiceTags},
 
   #state{agent = Agent,
          process = Process}.
@@ -107,6 +110,16 @@ jaeger_protocol(Options) ->
       thrift_compact_protocol;
     Protocol ->
       Protocol
+  end.
+
+jaeger_service_name(Options) ->
+  proplists:get_value(service_name, Options, ?DEFAULT_SERVICE_NAME).
+
+jaeger_service_tags(Options) ->
+  case proplists:get_value(service_tags, Options, ?DEFAULT_SERVICE_TAGS) of
+    undefined ->
+      undefined;
+    Tags -> to_tags(Tags)
   end.
 
 to_references([]) ->
