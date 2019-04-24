@@ -8,15 +8,18 @@
 [![Build Status][Travis badge]][Travis link]
 [![Coverage Status][Coveralls badge]][Coveralls link]
 
-To use, add `opencensus_jaeger` dependency as a runtime application (in rebar3 this means add to the `applications` list of `.app.src`) and set as the reporter in the `opencensus` configuration:
+=====
 
-``` erlang
+To use, add `opencensus_jaeger' dependency as a runtime application (in rebar3 this means add to the `applications' list of `.app.src') and set as the reporter in the `opencensus' configuration:
+
+<pre lang="erlang">
 {opencensus, [
-    {reporters, [{oc_reporter_jaeger, [{address, "http://localhost:9411/api/v2/spans"},
-                                       {service_name, <<"service">>}
-                                       {service_tags, %{<<"key">> => <<"value">>}}]}]},
+    {reporters, [{oc_reporter_jaeger, [{hostname, "localhost"},
+                                       {port, 6831}, %% default for compact protocol
+                                       {service_name, "service"},
+                                       {service_tags, %{"key" => "value"}}]}]},
     ...]}
-'''
+</pre>
 
 ## License
 
