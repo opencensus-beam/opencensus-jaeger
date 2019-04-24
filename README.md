@@ -6,8 +6,6 @@ Copyright (c) 2019 Ilya Khaprov <<i.khaprov@gmail.com>>.
 
 __Version:__ 0.0.1
 
-=====
-
 [![Hex.pm][Hex badge]][Hex link]
 [![Hex.pm Downloads][Hex downloads badge]][Hex link]
 [![Build Status][Travis badge]][Travis link]

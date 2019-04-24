@@ -3,8 +3,6 @@
 @version 0.0.1
 
 @doc
-=====
-
 [![Hex.pm][Hex badge]][Hex link]
 [![Hex.pm Downloads][Hex downloads badge]][Hex link]
 [![Build Status][Travis badge]][Travis link]
