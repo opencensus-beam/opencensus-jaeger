@@ -1,10 +1,8 @@
 @copyright 2019 Ilya Khaprov <<i.khaprov@gmail.com>>.
-@title opencensus_jaeger
+@title OpenCensus Jaeger Reporter
 @version 0.0.1
 
 @doc
-
-OpenCensus Jaeger Reporter
 =====
 
 [![Hex.pm][Hex badge]][Hex link]

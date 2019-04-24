@@ -1,12 +1,11 @@
 
 
-# opencensus_jaeger #
+# OpenCensus Jaeger Reporter #
 
 Copyright (c) 2019 Ilya Khaprov <<i.khaprov@gmail.com>>.
 
 __Version:__ 0.0.1
 
-OpenCensus Jaeger Reporter
 =====
 
 [![Hex.pm][Hex badge]][Hex link]
