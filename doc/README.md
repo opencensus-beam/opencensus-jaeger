@@ -1,8 +1,10 @@
-@copyright 2019 Ilya Khaprov <<i.khaprov@gmail.com>>.
-@title opencensus_jaeger
-@version 0.0.1
 
-@doc
+
+# opencensus_jaeger #
+
+Copyright (c) 2019 Ilya Khaprov <<i.khaprov@gmail.com>>.
+
+__Version:__ 0.0.1
 
 OpenCensus Jaeger Reporter
 =====
@@ -19,14 +21,11 @@ To use, add `opencensus_jaeger` dependency as a runtime application (in rebar3 t
     {reporters, [{oc_reporter_jaeger, [{address, "http://localhost:9411/api/v2/spans"},
                                        {service_name, <<"service">>}
                                        {service_tags, %{<<"key">> => <<"value">>}}]}]},
-    ...]}
-'''
+    ...]}`''
 
 ## License
 
 MIT
-
-<!-- Named Links -->
 
 [Hex badge]: https://img.shields.io/hexpm/v/opencensus_jaeger.svg?maxAge=2592000?style=plastic
 [Hex link]: https://hex.pm/packages/opencensus_jaeger
@@ -35,3 +34,14 @@ MIT
 [Travis link]: https://travis-ci.org/opencensus-beam/opencensus_jaeger
 [Coveralls badge]: https://coveralls.io/repos/github/opencensus-beam/opencensus_jaeger/badge.svg?branch=master
 [Coveralls link]: https://coveralls.io/github/opencensus-beam/opencensus_jaeger?branch=master
+
+
+## Modules ##
+
+
+<table width="100%" border="0" summary="list of modules">
+<tr><td><a href="oc_reporter_jaeger.md" class="module">oc_reporter_jaeger</a></td></tr>
+<tr><td><a href="oc_reporter_jaeger_transport_udp.md" class="module">oc_reporter_jaeger_transport_udp</a></td></tr>
+<tr><td><a href="opencensus_jaeger.md" class="module">opencensus_jaeger</a></td></tr>
+<tr><td><a href="repl.md" class="module">repl</a></td></tr></table>
+

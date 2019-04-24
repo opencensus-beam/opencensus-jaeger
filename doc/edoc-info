@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,opencensus_jaeger}.
+{modules,[oc_reporter_jaeger,oc_reporter_jaeger_transport_udp,
+          opencensus_jaeger,repl]}.
