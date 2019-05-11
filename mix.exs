@@ -13,7 +13,7 @@ defmodule OpencensusJaeger.Mixfile do
                     :warn_obsolete_guard],
      elixirc_options: [warnings_as_errors: true],
      test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: ["coveralls": :test, "coveralls.html": :test]]
+     preferred_cli_env: [coveralls: :test, "coveralls.html": :test]]
   end
 
   defp description do
@@ -25,12 +25,16 @@ defmodule OpencensusJaeger.Mixfile do
   defp package do
     [maintainers: ["Ilya Khaprov"],
      licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/deadtrickster/opencensus-jaeger"},
-     files: ["priv", "src", "README.md", "rebar.config"]]
+     links: %{"GitHub" => "https://github.com/opencensus-beam/opencensus-jaeger"},
+     files: ["src", "README.md", "rebar.config"]]
   end
 
   defp deps do
-    [{:credo, "~> 0.8.7", only: [:dev, :test]},
-     {:excoveralls, "~> 0.7.3", only: [:test]}]
+    [
+      {:opencensus, "~> 0.9.2"},
+      {:thrift, "~> 0.13.0", hex: :thrift_erl},
+
+      {:credo, "~> 0.8.7", only: [:dev, :test]},
+      {:excoveralls, "~> 0.7.3", only: [:test]}]
   end
 end
