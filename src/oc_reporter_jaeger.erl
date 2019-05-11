@@ -155,6 +155,10 @@ to_tag(Name, Value) when is_binary(Value) ->
   #'Jaeger.Thrift.Tag'{'key' = Name,
                        'vType' = 0, %% STRING
                        'vStr' = Value};
+to_tag(Name, Value) when is_atom(Value) ->
+  #'Jaeger.Thrift.Tag'{'key' = Name,
+                       'vType' = 0, %% STRING
+                       'vStr' = atom_to_binary(Value, utf8)};
 to_tag(Name, Value) when is_float(Value) ->
   #'Jaeger.Thrift.Tag'{'key' = Name,
                        'vType' = 1, %% DOUBLE
