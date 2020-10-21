@@ -50,7 +50,7 @@ init(Opts) ->
   Port = jaeger_port(Opts),
   ProtocolModule = jaeger_protocol(Opts),
   TransportModule = ?DEFAULT_TRANSPORT,
-  
+
   ServiceName = jaeger_service_name(Opts),
   ServiceTags = jaeger_service_tags(Opts),
 
@@ -77,17 +77,25 @@ send_jaeger_span(Span, Agent, Process) ->
 make_spans(Span) ->
 
   TraceId = Span#span.trace_id,
-  <<High:64, Low:64>> = <<TraceId:128/integer>>,
+  %% traceIdLow and traceIdHigh are _signed_ 64-bit integers while `High` and `Low` are unsigned, so they need to
+  %% converted to signed to not be truncated in the thrift protocol
+  %% See https://github.com/jaegertracing/jaeger/issues/1951
+  <<SignedTraceIdHigh:64/signed-integer, SignedTraceIdLow:64/signed-integer>> = <<TraceId:128/unsigned-integer>>,
+
+  %% Likewise, the span IDs, `parentSpanId` and `spanId` are signed 64, not unsigned 64
+  SpanId = Span#span.span_id,
+  <<SignedSpanId:64/signed-integer>> = <<SpanId:64/unsigned-integer>>,
 
   ParentSpanId = case Span#span.parent_span_id of
                    undefined -> 0;
                    PSI -> PSI
                  end,
+  <<SignedParentSpanId:64/signed-integer>> = <<ParentSpanId:64/unsigned-integer>>,
 
-  [#'Jaeger.Thrift.Span'{'traceIdLow' = Low,
-                         'traceIdHigh' = High,
-                         'spanId' = Span#span.span_id,
-                         'parentSpanId' = ParentSpanId,
+  [#'Jaeger.Thrift.Span'{'traceIdLow' = SignedTraceIdLow,
+                         'traceIdHigh' = SignedTraceIdHigh,
+                         'spanId' = SignedSpanId,
+                         'parentSpanId' = SignedParentSpanId,
                          'operationName' = Span#span.name,
                          'references' = to_references(Span#span.links),
                          'flags' = Span#span.trace_options,
